@@ -1,4 +1,5 @@
 import { GitHubProfile, Repository, LanguageStats } from '../types';
+import { checkGitHubRateLimit } from '../utils/rateLimitMonitor';
 
 /**
  * GitHub Analyzer Service
@@ -29,6 +30,13 @@ export async function fetchProfile(username: string): Promise<GitHubProfile> {
     ]);
 
     clearTimeout(timeoutId);
+
+    // Check GitHub rate limit headers and warn if approaching free tier limit
+    // Requirements: 10.3, 10.4
+    checkGitHubRateLimit(
+      userResponse.headers?.get('X-RateLimit-Remaining') ?? null,
+      userResponse.headers?.get('X-RateLimit-Limit') ?? null,
+    );
 
     // Handle user profile errors
     if (!userResponse.ok) {
