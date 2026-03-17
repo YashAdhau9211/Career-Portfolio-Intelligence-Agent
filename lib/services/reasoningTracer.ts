@@ -177,7 +177,7 @@ function buildRecommendationLogicStep(
  */
 function buildJSOAlignmentStep(plan: ImprovementPlan): ReasoningStep {
   const pillarsAddressed = plan.jsoAlignment.map((a) => a.pillar);
-  const uniquePillars = [...new Set(pillarsAddressed)];
+  const uniquePillars = Array.from(new Set(pillarsAddressed));
 
   const alignmentDetails = plan.jsoAlignment.map((alignment) => ({
     pillar: alignment.pillar,
@@ -239,7 +239,7 @@ function buildResourceSelectionStep(
 
   const totalHours = plan.learningResources.reduce((sum, r) => sum + r.estimatedHours, 0);
   const allFree = plan.learningResources.every((r) => r.isFree);
-  const resourceTypes = [...new Set(plan.learningResources.map((r) => r.type))];
+  const resourceTypes = Array.from(new Set(plan.learningResources.map((r) => r.type)));
 
   const intensityNote =
     jobSearchScore < 50
