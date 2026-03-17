@@ -13,6 +13,7 @@ import { logAnalysis, logError, hashInputData } from '@/lib/services/auditLogger
 import { trackAnalysis } from '@/lib/services/metricsTracker';
 import { sanitizeInput } from '@/lib/utils/sanitize';
 import { withTimeout, TimeoutError } from '@/lib/utils/timeout';
+import { checkGeminiRateLimit } from '@/lib/utils/rateLimitMonitor';
 import type { AnalysisResponse, ErrorResponse, AnalysisInput } from '@/lib/types';
 
 /**
@@ -92,6 +93,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       githubProfile,
       jobSearchScore,
     };
+
+    // Check Gemini rate limit before calling the API (Requirement 10.1, 10.2)
+    checkGeminiRateLimit();
 
     // Generate improvement plan via Gemini API (10-second timeout per spec, extended for real-world)
     let improvementPlan;
