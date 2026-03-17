@@ -2,8 +2,8 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Career Portfolio Intelligence Agent - JSO",
-  description: "AI-powered career improvement tool for the JSO platform",
+  title: "Career Portfolio Intelligence Agent",
+  description: "AI-powered career improvement tool",
 };
 
 export const viewport: Viewport = {
@@ -49,10 +49,7 @@ export default function RootLayout({
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <div className="text-center text-sm">
                 <p className="text-gray-400">
-                  © 2024 JSO Platform | Career Portfolio Intelligence Agent Prototype
-                </p>
-                <p className="text-gray-500 text-xs mt-1">
-                  Powered by Google Gemini AI, GitHub API, and Supabase
+                  © 2026 Career Portfolio Intelligence Agent Prototype
                 </p>
               </div>
             </div>
