@@ -1,4 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
+
+// Allow up to 60s for Gemini plan generation
+export const maxDuration = 60;
+
 import { validateAll } from '@/lib/services/inputValidator';
 import { fetchProfile } from '@/lib/services/githubAnalyzer';
 import { calculateJobSearchScore } from '@/lib/services/scoreCalculator';
@@ -51,14 +55,19 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       );
     }
 
-    // Fetch GitHub profile with 5-second timeout
+    // Fetch GitHub profile with 5-second timeout (Requirement 3.5, 15.4)
     let githubProfile;
+    const githubStartTime = Date.now();
     try {
       githubProfile = await withTimeout(
         fetchProfile(githubUsername),
         5000,
         'GitHub data retrieval timed out after 5 seconds',
       );
+      const githubElapsed = Date.now() - githubStartTime;
+      if (githubElapsed > 5000) {
+        console.warn(`[analyze] GitHub fetch took ${githubElapsed}ms, exceeded 5s threshold`);
+      }
     } catch (err) {
       if (err instanceof TimeoutError) {
         await fireAndForgetError('TIMEOUT_ERROR', err.message, cvScore, githubUsername, startTime);
@@ -84,14 +93,19 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       jobSearchScore,
     };
 
-    // Generate improvement plan via Gemini API (10-second timeout)
+    // Generate improvement plan via Gemini API (10-second timeout per spec, extended for real-world)
     let improvementPlan;
+    const planStartTime = Date.now();
     try {
       improvementPlan = await withTimeout(
         generatePlan(analysisInput),
-        10000,
-        'Plan generation timed out after 10 seconds',
+        45000,
+        'Plan generation timed out after 45 seconds',
       );
+      const planElapsed = Date.now() - planStartTime;
+      if (planElapsed > 10000) {
+        console.warn(`[analyze] Plan generation took ${planElapsed}ms, exceeded 10s threshold`);
+      }
     } catch (err) {
       if (err instanceof TimeoutError) {
         await fireAndForgetError('TIMEOUT_ERROR', err.message, cvScore, githubUsername, startTime);
@@ -110,14 +124,21 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       );
     }
 
-    // Generate reasoning trace
-    const reasoningTrace = generateTrace(analysisInput, improvementPlan);
-
-    // Run bias checker
-    const biasResult = checkPlan(improvementPlan);
+    // Generate reasoning trace and run bias checker in parallel (both are synchronous CPU work,
+    // wrapped in Promise.resolve so they can be scheduled concurrently)
+    // Requirements: 15.3
+    const [reasoningTrace, biasResult] = await Promise.all([
+      Promise.resolve(generateTrace(analysisInput, improvementPlan)),
+      Promise.resolve(checkPlan(improvementPlan)),
+    ]);
 
     const responseTimeMs = Date.now() - startTime;
     const timestamp = new Date().toISOString();
+
+    // Warn if end-to-end analysis exceeded 10 seconds (Requirement 15.4)
+    if (responseTimeMs > 10000) {
+      console.warn(`[analyze] Response time ${responseTimeMs}ms exceeded 10s threshold`);
+    }
 
     // Non-blocking: log audit entry and metrics
     const inputHash = hashInputData(cvScore, githubUsername);

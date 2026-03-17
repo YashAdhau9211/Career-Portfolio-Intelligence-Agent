@@ -12,12 +12,12 @@ CREATE TABLE audit_logs (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   timestamp TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   input_hash TEXT NOT NULL,
-  cv_score INTEGER NOT NULL CHECK (cv_score >= 0 AND cv_score <= 100),
-  job_search_score INTEGER NOT NULL CHECK (job_search_score >= 0 AND job_search_score <= 100),
-  plan_generated BOOLEAN NOT NULL,
-  bias_check_passed BOOLEAN NOT NULL,
+  cv_score INTEGER CHECK (cv_score >= 0 AND cv_score <= 100),
+  job_search_score INTEGER CHECK (job_search_score >= 0 AND job_search_score <= 100),
+  plan_generated BOOLEAN NOT NULL DEFAULT false,
+  bias_check_passed BOOLEAN NOT NULL DEFAULT false,
   bias_warnings JSONB,
-  response_time_ms INTEGER NOT NULL,
+  response_time_ms INTEGER,
   error_code TEXT
 );
 
