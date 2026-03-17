@@ -39,14 +39,14 @@ export function detectLanguageBias(projects: MiniProject[]): string[] {
     .join(' ')
     .toLowerCase();
 
-  const mainstreamMentions = [...MAINSTREAM_LANGUAGES].filter((lang) =>
+  const mainstreamMentions = Array.from(MAINSTREAM_LANGUAGES).filter((lang) =>
     allText.includes(lang)
   );
 
   // Flag if every project only mentions mainstream languages with no diversity
   const hasNonMainstream = projects.some((p) => {
     const text = [p.description, p.title, ...p.freeTools].join(' ').toLowerCase();
-    return [...MAINSTREAM_LANGUAGES].every((lang) => !text.includes(lang));
+    return Array.from(MAINSTREAM_LANGUAGES).every((lang) => !text.includes(lang));
   });
 
   if (mainstreamMentions.length > 0 && !hasNonMainstream) {
