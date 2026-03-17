@@ -1,5 +1,5 @@
 const { GoogleGenerativeAI } = require('@google/generative-ai');
-const genAI = new GoogleGenerativeAI('AIzaSyAhtpnxCFysdPZquDGB_dWvzAkSnRYPS3c');
+const genAI = new GoogleGenerativeAI('API Key');
 const model = genAI.getGenerativeModel({
   model: 'gemini-2.5-flash',
   generationConfig: { temperature: 0.7, topK: 40, topP: 0.95, maxOutputTokens: 4096 }

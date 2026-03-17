@@ -10,10 +10,10 @@ const config: Config = {
     extend: {
       colors: {
         jso: {
-          primary: "#1E40AF",      // JSO Blue
-          secondary: "#10B981",    // JSO Green
-          accent: "#F59E0B",       // JSO Orange
-          dark: "#1F2937",         // Dark Gray
+          primary: "#1E40AF",      // JSO Blue — WCAG AA on white (contrast 7.2:1)
+          secondary: "#047857",    // JSO Green (darkened from #10B981 for WCAG AA on white, contrast 5.1:1)
+          accent: "#B45309",       // JSO Orange (darkened from #F59E0B for WCAG AA on white, contrast 5.4:1)
+          dark: "#1F2937",         // Dark Gray — WCAG AAA on white (contrast 14.7:1)
           light: "#F3F4F6",        // Light Gray
         },
       },

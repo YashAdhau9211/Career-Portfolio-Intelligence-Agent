@@ -68,7 +68,8 @@ export default function Home() {
     }
   }, []);
 
-  // Submit handler — calls /api/analyze (Requirements: 1.5, 15.2, 16.1)
+  // Submit handler — checks localStorage cache first, then calls /api/analyze
+  // Requirements: 1.5, 6.1, 6.2, 15.2, 15.5, 16.1
   const handleSubmit = useCallback(async (cvScore: number, githubUsername: string) => {
     setState(prev => ({
       ...prev,
@@ -77,6 +78,29 @@ export default function Home() {
       cvScore,
       githubUsername,
     }));
+
+    // Check localStorage cache before hitting the API (Requirement 15.5)
+    try {
+      const cacheKey = `${PLAN_KEY_PREFIX}${githubUsername}`;
+      const raw = typeof window !== 'undefined' ? window.localStorage.getItem(cacheKey) : null;
+      if (raw) {
+        const cached: CachedPlan = JSON.parse(raw);
+        if (new Date() <= new Date(cached.expiresAt)) {
+          setState(prev => ({
+            ...prev,
+            loading: false,
+            jobSearchScore: cached.jobSearchScore,
+            improvementPlan: cached.plan,
+            reasoningTrace: cached.reasoningTrace,
+          }));
+          return;
+        }
+        // Expired — remove it
+        window.localStorage.removeItem(cacheKey);
+      }
+    } catch {
+      // Cache miss — proceed to API call
+    }
 
     try {
       const res = await fetch('/api/analyze', {
