@@ -145,13 +145,13 @@ export async function getMetricsSummary(): Promise<MetricsSummary> {
   const withCVScore = successfulMetrics.filter((m) => m.cv_score != null);
   const averageCVScore =
     withCVScore.length > 0
-      ? withCVScore.reduce((sum, m) => sum + m.cv_score, 0) / withCVScore.length
+      ? withCVScore.reduce((sum, m) => sum + (m.cv_score ?? 0), 0) / withCVScore.length
       : 0;
 
   const withJobScore = successfulMetrics.filter((m) => m.job_search_score != null);
   const averageJobSearchScore =
     withJobScore.length > 0
-      ? withJobScore.reduce((sum, m) => sum + m.job_search_score, 0) / withJobScore.length
+      ? withJobScore.reduce((sum, m) => sum + (m.job_search_score ?? 0), 0) / withJobScore.length
       : 0;
 
   return {
