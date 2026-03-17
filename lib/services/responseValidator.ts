@@ -297,7 +297,7 @@ function validateJSOAlignment(data: unknown, index: number): string[] {
 
   if (!VALID_JSO_PILLARS.has(a.pillar as string)) {
     errors.push(
-      `${prefix}: invalid pillar "${a.pillar}", must be one of: ${[...VALID_JSO_PILLARS].join(', ')}`
+      `${prefix}: invalid pillar "${a.pillar}", must be one of: ${Array.from(VALID_JSO_PILLARS).join(', ')}`
     );
   }
   if (typeof a.recommendation !== 'string' || a.recommendation.trim() === '') {
