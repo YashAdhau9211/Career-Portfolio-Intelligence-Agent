@@ -36,7 +36,7 @@ const GENERATION_CONFIG = {
   temperature: 0.7,
   topK: 40,
   topP: 0.95,
-  maxOutputTokens: 2048,
+  maxOutputTokens: 4096,
 };
 
 const JSO_PILLARS = [
@@ -64,87 +64,23 @@ export function buildPrompt(input: AnalysisInput): string {
   const languageList =
     topLanguages.length > 0 ? topLanguages.join(', ') : 'None detected';
 
-  return `You are a career improvement advisor for the JSO platform.
+  return `You are a career advisor for the JSO platform. Generate a concise 30-day improvement plan.
 
-CONTEXT:
-- CV Score: ${cvScore}/100
-- GitHub Username: ${githubUsername}
-- Public Repositories: ${githubProfile.publicRepos}
-- Primary Languages: ${languageList}
-- Account Age: ${githubProfile.accountAge} days
-- Recent Activity (last 30 days): ${githubProfile.recentActivity ? 'Yes' : 'No'}
-- Total Commits: ${githubProfile.totalCommits}
-- Followers: ${githubProfile.followers}
-- Job Search Score: ${jobSearchScore}/100
+CANDIDATE:
+- CV Score: ${cvScore}/100, Job Search Score: ${jobSearchScore}/100
+- GitHub: ${githubUsername} | Repos: ${githubProfile.publicRepos} | Languages: ${languageList}
+- Commits: ${githubProfile.totalCommits} | Followers: ${githubProfile.followers} | Active recently: ${githubProfile.recentActivity ? 'Yes' : 'No'}
 
-TASK:
-Generate a personalized 30-day career improvement plan.
+RULES:
+- 2-3 mini-projects using ONLY free tools, completable in 30 days
+- 3 CV bullet rewrites with action verbs and metrics
+- 3 FREE learning resources only (freeCodeCamp, MDN, YouTube, official docs, Coursera/edX audit — NO paid content)
+- 1 JSO pillar alignment (${JSO_PILLARS.join(', ')})
+- Keep all text fields brief (1-2 sentences max)
+- isFree must be true for all resources
 
-REQUIREMENTS:
-1. Suggest 2-3 mini-projects that:
-   - Use ONLY free tools and services (NO paid tools, NO paid subscriptions)
-   - Build on existing GitHub skills shown above
-   - Are completable within 30 days
-   - Add clear portfolio value
-
-2. Rewrite 3-5 CV bullet points:
-   - Based on actual GitHub projects and languages
-   - Use strong action verbs and quantifiable results
-   - Highlight technical skills relevant to job market
-
-3. Recommend 3-5 learning resources:
-   - MUST be 100% FREE — no paid courses, no paywalled content
-   - Relevant to the candidate's current skill gaps
-   - Mix of courses, tutorials, documentation, and articles
-
-4. Align with JSO Pillars (${JSO_PILLARS.join(', ')}):
-   - Map at least one recommendation to a JSO pillar
-   - Explain how it supports that pillar's values
-
-CRITICAL CONSTRAINTS:
-- ALL resources MUST be free. Set isFree: true only when genuinely free.
-- Do NOT recommend paid platforms (Udemy paid courses, Pluralsight, LinkedIn Learning paid, etc.)
-- Free options include: freeCodeCamp, The Odin Project, MDN, official docs, YouTube, Coursera audit, edX audit, GitHub Learning Lab
-
-OUTPUT FORMAT — respond with ONLY valid JSON, no markdown fences, no extra text:
-{
-  "summary": "Brief 2-3 sentence overview of the plan",
-  "miniProjects": [
-    {
-      "title": "Project name",
-      "description": "What to build and why it adds portfolio value",
-      "estimatedDays": 10,
-      "freeTools": ["Tool1", "Tool2"],
-      "learningOutcomes": ["Outcome1", "Outcome2"],
-      "difficulty": "Intermediate"
-    }
-  ],
-  "cvRewrites": [
-    {
-      "original": "Worked on web projects",
-      "improved": "Developed 5 full-stack web applications using React and Node.js, serving 1000+ users",
-      "rationale": "More specific and quantifiable",
-      "githubProjectReference": "project-name or null"
-    }
-  ],
-  "learningResources": [
-    {
-      "title": "Resource name",
-      "type": "Course",
-      "url": "https://...",
-      "provider": "Provider name",
-      "estimatedHours": 10,
-      "isFree": true
-    }
-  ],
-  "jsoAlignment": [
-    {
-      "pillar": "Community",
-      "recommendation": "Contribute to open source",
-      "explanation": "Why this aligns with the Community pillar"
-    }
-  ]
-}`;
+Respond with ONLY valid JSON, no markdown, no extra text:
+{"summary":"string","miniProjects":[{"title":"string","description":"string","estimatedDays":10,"freeTools":["string"],"learningOutcomes":["string"],"difficulty":"string"}],"cvRewrites":[{"original":"string","improved":"string","rationale":"string","githubProjectReference":null}],"learningResources":[{"title":"string","type":"string","url":"string","provider":"string","estimatedHours":5,"isFree":true}],"jsoAlignment":[{"pillar":"string","recommendation":"string","explanation":"string"}]}`;
 }
 
 /**
@@ -228,7 +164,7 @@ export function parseGeminiResponse(response: string): ImprovementPlan {
  */
 export async function generatePlan(input: AnalysisInput): Promise<ImprovementPlan> {
   const model = getGenAI().getGenerativeModel({
-    model: 'gemini-1.5-flash',
+    model: 'gemini-2.5-flash',
     generationConfig: GENERATION_CONFIG,
   });
 

@@ -70,12 +70,12 @@ export async function logError(error: ErrorLogEntry): Promise<void> {
       input_hash: error.context.cvScore !== undefined && error.context.githubUsername !== undefined
         ? hashInputData(error.context.cvScore, error.context.githubUsername)
         : null,
-      cv_score: error.context.cvScore ?? null,
-      job_search_score: null,
+      cv_score: error.context.cvScore ?? 0,
+      job_search_score: 0,
       plan_generated: false,
       bias_check_passed: false,
       bias_warnings: [],
-      response_time_ms: null,
+      response_time_ms: 0,
       error_code: error.errorType,
     });
 

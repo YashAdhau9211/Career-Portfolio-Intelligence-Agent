@@ -1,4 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
+
+// Allow up to 60s for Gemini plan generation
+export const maxDuration = 60;
+
 import { validateAll } from '@/lib/services/inputValidator';
 import { fetchProfile } from '@/lib/services/githubAnalyzer';
 import { calculateJobSearchScore } from '@/lib/services/scoreCalculator';
@@ -89,8 +93,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     try {
       improvementPlan = await withTimeout(
         generatePlan(analysisInput),
-        10000,
-        'Plan generation timed out after 10 seconds',
+        45000,
+        'Plan generation timed out after 45 seconds',
       );
     } catch (err) {
       if (err instanceof TimeoutError) {
