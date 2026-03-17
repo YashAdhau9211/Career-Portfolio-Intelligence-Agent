@@ -56,7 +56,15 @@ export async function getMetricsSummary(): Promise<MetricsSummary> {
     };
   }
 
-  let metrics: Record<string, unknown>[] | null = null;
+  type MetricsRow = {
+    response_time_ms: number;
+    success: boolean;
+    error_type: string | null;
+    cv_score: number | null;
+    job_search_score: number | null;
+    github_languages: string[] | null;
+  };
+  let metrics: MetricsRow[] | null = null;
   try {
     const result = await supabase
       .from('metrics')
